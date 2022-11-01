@@ -1,0 +1,73 @@
+## List project's files and compile program
+usuarioso@debian:~/student-records$ ls
+defs.h  Makefile  student-records.c 
+usuarioso@debian:~/student-records$ make
+gcc -c -Wall -g student-records.c -o student-records.o
+gcc -g -o student-records student-records.o
+
+## Create a new 2-record file and dump contents of the associated binary file
+usuarioso@debian:~/student-records$ ./student-records -f database -c 27:67659034X:Chris:Rock 34:78675903J:Antonio:Banderas
+2 records written succesfully>
+usuarioso@debian:~/student-records$ xxd database 
+00000000: 0200 0000 1b00 0000 3637 3635 3930 3334  ........67659034
+00000010: 5800 4368 7269 7300 526f 636b 0022 0000  X.Chris.Rock."..
+00000020: 0037 3836 3735 3930 334a 0041 6e74 6f6e  .78675903J.Anton
+00000030: 696f 0042 616e 6465 7261 7300            io.Banderas.
+
+## Add 2 new registers at the end
+usuarioso@debian:~/student-records$ ./student-records -f database -a \
+> 3:58943056J:Santiago:Segura 4:6345239G:Penelope:Cruz
+2 extra records written succesfully
+usuarioso@debian:~/student-records$ xxd database 
+00000000: 0400 0000 1b00 0000 3637 3635 3930 3334  ........67659034
+00000010: 5800 4368 7269 7300 526f 636b 0022 0000  X.Chris.Rock."..
+00000020: 0037 3836 3735 3930 334a 0041 6e74 6f6e  .78675903J.Anton
+00000030: 696f 0042 616e 6465 7261 7300 0300 0000  io.Banderas.....
+00000040: 3538 3934 3330 3536 4a00 5361 6e74 6961  58943056J.Santia
+00000050: 676f 0053 6567 7572 6100 0400 0000 3633  go.Segura.....63
+00000060: 3435 3233 3947 0050 656e 656c 6f70 6500  45239G.Penelope.
+00000070: 4372 757a 00                             Cruz.
+
+## Try to add an entry that matches an existing student ID
+$ ./student-records -f database -a 3:58943056J:Antonio:Segura 
+Found duplicate student_id 3
+
+## List all the entries in the file
+usuarioso@debian:~/student-records$ ./student-records -f database -l
+[Entry #0]
+        student_id=27
+        NIF=67659034X
+        first_name=Chris
+        last_name=Rock
+[Entry #1]
+        student_id=34
+        NIF=78675903J
+        first_name=Antonio
+        last_name=Banderas
+[Entry #2]
+        student_id=3
+        NIF=58943056J
+        first_name=Santiago
+        last_name=Segura
+[Entry #3]
+        student_id=4
+        NIF=6345239G
+        first_name=Penelope
+        last_name=Cruz
+        
+## Search for specific entries
+usuarioso@debian:~/student-records$ ./student-records -f database -q -i 7
+No entry was found
+usuarioso@debian:~/student-records$ ./student-records -f database -q -i 34
+[Entry #1]
+        student_id=34
+        NIF=78675903J
+        first_name=Antonio
+        last_name=Banderas
+usuarioso@debian:~/student-records$ ./student-records -f database -q -n 6345239G
+[Entry #3]
+        student_id=4
+        NIF=6345239G
+        first_name=Penelope
+        last_name=Cruz
+
